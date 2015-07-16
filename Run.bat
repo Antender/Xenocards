@@ -1,0 +1,1 @@
+"C:\Program Files\Love2d\love.exe" --console .
