@@ -44,19 +44,26 @@ function love.update(dt)
 end
 
 function deal()
-	deck = {}
-
+	deck1 = {}
+	deck2 = {}
 	--Populate
 	for i = 1, 52 do
-		deck[i] = i
+		deck1[i] = i
 	end
 	--Shuffle
 	for i = 1, 52 do
 		randomIndex = love.math.random(i, 52)
-		j = deck[i]
-		deck[i] = deck[randomIndex]
-		deck[randomIndex] = j
+		j = deck1[i]
+		deck1[i] = deck1[randomIndex]
+		deck1[randomIndex] = j
 	end
+	--Split
+	for i = 1, 26 do
+		deck2[i] = deck1[i]
+		deck1[i] = deck1[i + 26]
+		deck1[i + 26] = nil
+	end
+	deck = {deck1, deck2}
 	
 end
 
@@ -69,10 +76,10 @@ function restart()
 end
 
 function love.draw()
-	if (nextCard <= 52) then
-		spriteMetaTable[deck[nextCard]][2] = nextX * 81
-		spriteMetaTable[deck[nextCard]][3] = nextY * 117
-		spriteBatch:add(unpack(spriteMetaTable[deck[nextCard]]))
+	if (nextCard <= 26) then
+		spriteMetaTable[deck[1][nextCard]][2] = nextX * 81
+		spriteMetaTable[deck[1][nextCard]][3] = nextY * 117
+		spriteBatch:add(unpack(spriteMetaTable[deck[1][nextCard]]))
 		love.graphics.draw(spriteBatch, 0, 0)
 
 		nextX = nextX + 1
