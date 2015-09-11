@@ -31,7 +31,8 @@ function love.load()
 	atlas = love.graphics.newImage("cardsAtlas.png")
 	spriteMetaTable = newSpriteMetaTable(atlas, 58, 81, 117, 0, 0)
 	spriteBatch = love.graphics.newSpriteBatch(atlas, 58, "dynamic")
-	love.window.setMode( 1680, 1050, {fullscreen = true, fullscreentype = "desktop", vsync = false} )
+	love.window.setMode( 1680, 1049, {borderless = true} )
+	deal()
 end
 
 function love.update(dt)
@@ -42,18 +43,36 @@ function love.update(dt)
 	end
 end
 
+function deal()
+	deck = {}
+
+	--Populate
+	for i = 1, 52 do
+		deck[i] = i
+	end
+	--Shuffle
+	for i = 1, 52 do
+		randomIndex = love.math.random(i, 52)
+		j = deck[i]
+		deck[i] = deck[randomIndex]
+		deck[randomIndex] = j
+	end
+	
+end
+
 function restart()
 	nextCard = 1
 	spriteBatch:clear()
 	nextX = 0
 	nextY = 0
+	deal()
 end
 
 function love.draw()
-	if (nextCard <= 58) then
-		spriteMetaTable[nextCard][2] = nextX * 81
-		spriteMetaTable[nextCard][3] = nextY * 117
-		spriteBatch:add(unpack(spriteMetaTable[nextCard]))
+	if (nextCard <= 52) then
+		spriteMetaTable[deck[nextCard]][2] = nextX * 81
+		spriteMetaTable[deck[nextCard]][3] = nextY * 117
+		spriteBatch:add(unpack(spriteMetaTable[deck[nextCard]]))
 		love.graphics.draw(spriteBatch, 0, 0)
 
 		nextX = nextX + 1
