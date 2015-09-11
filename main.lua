@@ -11,10 +11,9 @@ function newSpriteMetaTable(atlas, spriteCount, spriteWidth, spriteHeight, paddi
 		love.event.quit()
 	else
 		for i = 0, spriteCount do
-			x_offset = (i % (spriteCountHorizontal)) * (spriteWidth + paddingHorizontal)
-			y_offset = ({math.modf(i / (spriteCountHorizontal))})[1] * (spriteHeight + paddingVertical)
-			print(x_offset / spriteWidth, y_offset / spriteHeight)
-			quad = love.graphics.newQuad(x_offset, y_offset, spriteWidth, spriteHeight, atlas:getDimensions())
+			x_offset = (i % spriteCountHorizontal) * (spriteWidth + paddingHorizontal)
+			y_offset = ({math.modf(i / spriteCountHorizontal)})[1] * (spriteHeight + paddingVertical)
+			quad = love.graphics.newQuad(x_offset, y_offset, spriteWidth, spriteHeight, ({atlas:getDimensions()})[1], ({atlas:getDimensions()})[2])
 			spriteMeta = {quad, 0, 0}
 			table.insert(spriteMetaTable, spriteMeta)
 		end
@@ -25,31 +24,47 @@ end
 
 function love.load()
 	nextCard = 1
+	nextX = 0
+	nextY = 0
 	windowWidth = love.window.getWidth()
 	windowHeight = love.window.getHeight()
 	atlas = love.graphics.newImage("cardsAtlas.png")
 	spriteMetaTable = newSpriteMetaTable(atlas, 58, 81, 117, 0, 0)
 	spriteBatch = love.graphics.newSpriteBatch(atlas, 58, "dynamic")
+	love.window.setMode( 1680, 1050, {fullscreen = true, fullscreentype = "desktop", vsync = false} )
 end
 
 function love.update(dt)
 	if love.keyboard.isDown( "r" ) then
-		nextCard = 1
-		spriteBatch:clear()
+		restart()
 	elseif love.keyboard.isDown( "escape" ) then
 		love.event.quit()
 	end
 end
 
+function restart()
+	nextCard = 1
+	spriteBatch:clear()
+	nextX = 0
+	nextY = 0
+end
+
 function love.draw()
-	spriteMetaTable[nextCard][2] = love.math.random(windowWidth - 73)
-	spriteMetaTable[nextCard][3] = love.math.random(windowHeight - 98)
-	spriteBatch:add(unpack(spriteMetaTable[nextCard]))
-	love.graphics.draw(spriteBatch, 0, 0)
 	if (nextCard <= 58) then
+		spriteMetaTable[nextCard][2] = nextX * 81
+		spriteMetaTable[nextCard][3] = nextY * 117
+		spriteBatch:add(unpack(spriteMetaTable[nextCard]))
+		love.graphics.draw(spriteBatch, 0, 0)
+
+		nextX = nextX + 1
+		
+		if(nextX > 12) then
+			nextX = 0
+			nextY = nextY + 1
+		end
+		
 		nextCard = nextCard + 1
 	else
-		spriteBatch:clear()
-		nextCard = 1
+		love.graphics.draw(spriteBatch, 0, 0)
 	end
 end
