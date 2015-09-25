@@ -9,8 +9,8 @@ function love.load()
 	nextY = 0
 	UIgrid = {{}, {}} --[1] — X, [2] — Y.
 	atlas = love.graphics.newImage("cardsAtlas.png")
-	spriteMetaTable = newSpriteMetaTable(atlas, 58, 81, 117, 0, 0)
-	spriteBatch = love.graphics.newSpriteBatch(atlas, 58, "dynamic")
+	spriteMetaTable = newSpriteMetaTable(atlas, 59, 81, 117, 0, 0)
+	spriteBatch = love.graphics.newSpriteBatch(atlas, 59, "dynamic")
 	love.window.setMode( 1680, 1049, {borderless = true} )
 	windowWidth = love.window.getWidth()
 	windowHeight = love.window.getHeight()
@@ -189,7 +189,7 @@ function popDeck(player)
 		table.remove(decks[player], decksSizes[player])
 		decksSizes[player] = decksSizes[player] - 1
 	else
-		card = 53
+		card = 59
 	end
 	return card
 end
@@ -257,7 +257,7 @@ end
 
 function drawCard(player, position)
 	local card = popDeck(player)
-	if card ~= 53 then
+	if card ~= 59 then
 		handsSizes[player] = handsSizes[player] + 1
 	end
 	hands[player][position] = card
@@ -268,9 +268,9 @@ function resolve()
 	
 	if decksSizes[1] == 0 then
 		for i = 1, 4 do
-			if hands[1][i] ~= 53 then
+			if hands[1][i] ~= 59 then
 				candidates[1] = hands[1][i]
-				hands[1][i] = 53
+				hands[1][i] = 59
 				handsSizes[1] = handsSizes[1] - 1
 				isGameOver()
 				break
@@ -282,9 +282,9 @@ function resolve()
 
 	if decksSizes[2] == 0 then
 		for i = 1, 4 do
-			if hands[2][i] ~= 53 then
+			if hands[2][i] ~= 59 then
 				candidates[2] = hands[2][i]
-				hands[2][i] = 53
+				hands[2][i] = 59
 				handsSizes[2] = handsSizes[2] - 1
 				isGameOver()
 				break
@@ -304,7 +304,7 @@ end
 
 function isValid(player, position, target)
 	local validity
-	if hands[player][position] == 53 then
+	if hands[player][position] == 59 then
 		validity = false
 	else
 		local difference = math.abs(hands[player][position] % 13 - targets[target] % 13)
@@ -321,12 +321,26 @@ function UIcompose()
 	spriteBatch:clear()
 
 	--Decks
-	spriteMetaTable[53][2] = UIgrid[1][1]
-	spriteMetaTable[53][3] = UIgrid[2][1]
-	spriteBatch:add(unpack(spriteMetaTable[53]))
-	spriteMetaTable[53][2] = UIgrid[1][6]
-	spriteMetaTable[53][3] = UIgrid[2][5]
-	spriteBatch:add(unpack(spriteMetaTable[53]))
+	if decksSizes[1] > 0 then
+		spriteMetaTable[53][2] = UIgrid[1][1]
+		spriteMetaTable[53][3] = UIgrid[2][1]
+		spriteBatch:add(unpack(spriteMetaTable[53]))
+	else
+		spriteMetaTable[59][2] = UIgrid[1][1]
+		spriteMetaTable[59][3] = UIgrid[2][1]
+		spriteBatch:add(unpack(spriteMetaTable[59]))
+	end
+
+	
+	if decksSizes[2] > 0 then
+		spriteMetaTable[53][2] = UIgrid[1][6]
+		spriteMetaTable[53][3] = UIgrid[2][5]
+		spriteBatch:add(unpack(spriteMetaTable[53]))
+	else
+		spriteMetaTable[59][2] = UIgrid[1][6]
+		spriteMetaTable[59][3] = UIgrid[2][5]
+		spriteBatch:add(unpack(spriteMetaTable[59]))
+	end
 	
 	--Hands
 	for i = 1, 4 do
