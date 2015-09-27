@@ -8,20 +8,21 @@ function love.load()
 	nextX = 0
 	nextY = 0
 	UIgrid = {{}, {}} --[1] — X, [2] — Y.
-	atlas = love.graphics.newImage("cardsAtlas.png")
-	spriteMetaTable = newSpriteMetaTable(atlas, 59, 81, 117, 0, 0)
-	spriteBatch = love.graphics.newSpriteBatch(atlas, 59, "dynamic")
+	UIanchors = {{1, 1}, {6, 5}}
+	BGgrid = {}
+	recalculateBGgrid = false
+	recalculateUIgrid = false
+	background = love.graphics.newImage("background.png")
+	cardsAtlas = love.graphics.newImage("cardsAtlas.png")
+	backgroundSpriteBatch = love.graphics.newSpriteBatch(background, 50, "dynamic")
+	cardsSpriteMetaTable = newSpriteMetaTable(cardsAtlas, 59, 81, 117, 0, 0)
+	cardsSpriteBatch = love.graphics.newSpriteBatch(cardsAtlas, 12, "dynamic")
 	love.window.setMode( 1680, 1049, {borderless = true} )
 	windowWidth = love.window.getWidth()
 	windowHeight = love.window.getHeight()
-
-	for i = 1, 7 do
-		UIgrid[1][i] = windowWidth / 7 * i - 40
-		if i < 7 then
-			UIgrid[2][i] = windowHeight / 6 * i - 107
-		end
-	end
-
+	setUIgrid()
+	setBGgrid()
+	BGcompose()
 	deal()
 end
 
@@ -31,7 +32,7 @@ function love.update(dt)
 	elseif love.keyboard.isDown( "escape" ) then
 		love.event.quit()
 
---A horrendous horde of gruesome regular expressions stormed through here. There's gotta be a better way.
+	--A horrendous horde of gruesome regular expressions stormed through here. There's gotta be a better way.
 	elseif love.keyboard.isDown( "1" ) then
 		keyPressed = "1"
 	elseif love.keyboard.isDown( "2" ) then
@@ -118,16 +119,42 @@ end
 
 function love.draw()
 	UIcompose()
-	love.graphics.draw(spriteBatch, 0, 0)
+	love.graphics.draw(backgroundSpriteBatch, 0, 0)
+	love.graphics.draw(cardsSpriteBatch, 0, 0)
+end
+
+function setUIgrid()
+	for i = 1, 7 do
+		UIgrid[1][i] = windowWidth / 7 * i - 40
+		if i < 7 then
+			UIgrid[2][i] = windowHeight / 6 * i - 107
+		end
+	end
+end
+
+function setBGgrid()
+	local x = 0
+	local y = 0
+	while x < windowWidth and y < windowHeight do
+		table.insert(BGgrid, {x, y})
+		x = x + background:getWidth()
+		
+		if x > windowWidth then
+			x = 0
+			y = y + background:getHeight()
+		end
+	end
 end
 
 function newSpriteMetaTable(atlas, spriteCount, spriteWidth, spriteHeight, paddingHorizontal, paddingVertical)
 	--This function is meant to be explicitly strict for now
-	x_offset = 0
-	y_offset = 0
-	spriteMetaTable = {}
-	spriteCountHorizontal = atlas:getWidth() / (spriteWidth + paddingHorizontal)
-	spriteCountVertical = atlas:getHeight() / (spriteHeight + paddingVertical)
+	local x_offset = 0
+	local y_offset = 0
+	local cardsSpriteMetaTable = {}
+	local spriteCountHorizontal = atlas:getWidth() / (spriteWidth + paddingHorizontal)
+	local spriteCountVertical = atlas:getHeight() / (spriteHeight + paddingVertical)
+	local quad = nil
+	local spriteMeta = nil
 
 	if ({math.modf(spriteCountHorizontal)})[2] ~= 0 or ({math.modf(spriteCountVertical)})[2] ~= 0 then
 		love.window.showMessageBox("Error", "Atlas is corrupted: size multiplicity mismatch", "error", true)
@@ -138,16 +165,17 @@ function newSpriteMetaTable(atlas, spriteCount, spriteWidth, spriteHeight, paddi
 			y_offset = ({math.modf(i / spriteCountHorizontal)})[1] * (spriteHeight + paddingVertical)
 			quad = love.graphics.newQuad(x_offset, y_offset, spriteWidth, spriteHeight, ({atlas:getDimensions()})[1], ({atlas:getDimensions()})[2])
 			spriteMeta = {quad, 0, 0}
-			table.insert(spriteMetaTable, spriteMeta)
+			table.insert(cardsSpriteMetaTable, spriteMeta)
 		end
 	end
 	
-	return spriteMetaTable
+	return cardsSpriteMetaTable
 end
 
 function deal()
-	deck1 = {}
-	deck2 = {}
+	local deck1 = {}
+	local deck2 = {}
+	local randomIndex = nil
 
 	--Populate
 	for i = 1, 52 do
@@ -185,6 +213,7 @@ end
 
 function popDeck(player)
 	local card = decks[player][decksSizes[player]]
+	
 	if decksSizes[player] > 0 then
 		table.remove(decks[player], decksSizes[player])
 		decksSizes[player] = decksSizes[player] - 1
@@ -226,9 +255,9 @@ end
 function gameOver(condition)
 	local message
 
-	if condition == false then
+	if condition == false then --Need to put a switch instead.
 		message = "I AM ERROR"
-	elseif condition == 1 then --Need to put a switch instead.
+	elseif condition == 1 then
 		message = "First player won!"
 	elseif condition == 2 then
 		message = "Second player won!"
@@ -236,7 +265,7 @@ function gameOver(condition)
 		message = "It's a draw!"
 	end
 
-	love.window.showMessageBox( "Game Over", message, "info", true)
+	love.window.showMessageBox("Game Over", message, "info", true) --Needs to visually resolve first.
 	restart()
 end
 
@@ -257,41 +286,31 @@ end
 
 function drawCard(player, position)
 	local card = popDeck(player)
+	
 	if card ~= 59 then
 		handsSizes[player] = handsSizes[player] + 1
 	end
+	
 	hands[player][position] = card
 end
 
 function resolve()
 	local candidates = {}
-	
-	if decksSizes[1] == 0 then
-		for i = 1, 4 do
-			if hands[1][i] ~= 59 then
-				candidates[1] = hands[1][i]
-				hands[1][i] = 59
-				handsSizes[1] = handsSizes[1] - 1
-				isGameOver()
-				break
-			end
-		end
-	else
-		candidates[1] = popDeck(1)
-	end
 
-	if decksSizes[2] == 0 then
-		for i = 1, 4 do
-			if hands[2][i] ~= 59 then
-				candidates[2] = hands[2][i]
-				hands[2][i] = 59
-				handsSizes[2] = handsSizes[2] - 1
-				isGameOver()
-				break
+	for i = 1, 2 do
+		if decksSizes[i] == 0 then
+			for j = 1, 4 do
+				if hands[i][j] ~= 59 then
+					candidates[i] = hands[i][j]
+					hands[i][j] = 59
+					handsSizes[i] = handsSizes[i] - 1
+					isGameOver()
+					break --Might be causing an unknown bug.
+				end
 			end
+		else
+		candidates[i] = popDeck(i)
 		end
-	else
-		candidates[2] = popDeck(2)
 	end
 
 	targets[1] = candidates[2]
@@ -303,13 +322,15 @@ function resolve()
 end
 
 function isValid(player, position, target)
-	local validity
+	local validity = nil
+
 	if hands[player][position] == 59 then
 		validity = false
 	else
 		local difference = math.abs(hands[player][position] % 13 - targets[target] % 13)
 		validity = difference == 1 or difference == 12
 	end
+	
 	return validity
 end
 
@@ -317,44 +338,51 @@ function restart()
 	deal()
 end
 
+function BGcompose()
+	if recalculateBGgrid then
+		setBGgrid()
+	end
+	
+	for i = 1, #BGgrid do
+	backgroundSpriteBatch:add(unpack(BGgrid[i]))
+	end
+end
+
 function UIcompose()
-	spriteBatch:clear()
+	local sprite
+	
+	if recalculateUIgrid then
+		setUIgrid()
+	end
+
+	cardsSpriteBatch:clear()
 
 	--Decks
-	if decksSizes[1] > 0 then
-		spriteMetaTable[53][2] = UIgrid[1][1]
-		spriteMetaTable[53][3] = UIgrid[2][1]
-		spriteBatch:add(unpack(spriteMetaTable[53]))
-	else
-		spriteMetaTable[59][2] = UIgrid[1][1]
-		spriteMetaTable[59][3] = UIgrid[2][1]
-		spriteBatch:add(unpack(spriteMetaTable[59]))
+	for i = 1, 2 do
+		if decksSizes[i] > 0 then
+			sprite = 53
+		else
+			sprite = 59
+		end
+
+		cardsSpriteMetaTable[sprite][2] = UIgrid[1][UIanchors[i][1]]
+		cardsSpriteMetaTable[sprite][3] = UIgrid[2][UIanchors[i][2]]
+		cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[sprite]))
 	end
 
-	
-	if decksSizes[2] > 0 then
-		spriteMetaTable[53][2] = UIgrid[1][6]
-		spriteMetaTable[53][3] = UIgrid[2][5]
-		spriteBatch:add(unpack(spriteMetaTable[53]))
-	else
-		spriteMetaTable[59][2] = UIgrid[1][6]
-		spriteMetaTable[59][3] = UIgrid[2][5]
-		spriteBatch:add(unpack(spriteMetaTable[59]))
-	end
-	
 	--Hands
 	for i = 1, 4 do
 		for j = 1, 2 do
-			spriteMetaTable[hands[j][i]][2] = UIgrid[1][i + 1]
-			spriteMetaTable[hands[j][i]][3] = UIgrid[2][j * 2]
-			spriteBatch:add(unpack(spriteMetaTable[hands[j][i]]))
+			cardsSpriteMetaTable[hands[j][i]][2] = UIgrid[1][i + 1]
+			cardsSpriteMetaTable[hands[j][i]][3] = UIgrid[2][j * 2]
+			cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[hands[j][i]]))
 		end
 	end
 	
 	--Targets
 	for i = 1, 2 do
-		spriteMetaTable[targets[i]][2] = UIgrid[1][i + 2]
-		spriteMetaTable[targets[i]][3] = UIgrid[2][3]
-		spriteBatch:add(unpack(spriteMetaTable[targets[i]]))
+		cardsSpriteMetaTable[targets[i]][2] = UIgrid[1][i + 2]
+		cardsSpriteMetaTable[targets[i]][3] = UIgrid[2][3]
+		cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[targets[i]]))
 	end
 end
