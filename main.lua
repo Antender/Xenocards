@@ -1,5 +1,4 @@
 function love.load()
-	keyPressed = nil
 	handsSizes = {0, 0}
 	decksSizes = {0, 0}
 	hands = {{}, {}}
@@ -24,97 +23,43 @@ function love.load()
 	setBGgrid()
 	BGcompose()
 	deal()
+	keys = {
+ {"1",true,{1,1,1}}
+	{"2",true,{1,2,1}}
+	{"3",true,{1,3,1}}
+	{"4",true,{1,4,1}}
+	{"5",true,{1,1,2}}
+	{"6",true,{1,2,2}}
+	{"7",true,{1,3,2}}
+	{"8",true,{1,4,2}}
+	{"q",true,{2,1,1}}
+	{"w",true,{2,2,1}}
+	{"e",true,{2,3,1}}
+	{"r",true,{2,4,1}}
+	{"t",true,{2,1,2}}
+	{"y",true,{2,2,2}}
+	{"u",true,{2,3,2}}
+	{"i",true,{2,4,2}}
+	}
 end
+
 
 function love.update(dt)
 	if love.keyboard.isDown( "z" ) then
 		restart()
 	elseif love.keyboard.isDown( "escape" ) then
 		love.event.quit()
-
-	--A horrendous horde of gruesome regular expressions stormed through here. There's gotta be a better way.
-	elseif love.keyboard.isDown( "1" ) then
-		keyPressed = "1"
-	elseif love.keyboard.isDown( "2" ) then
-		keyPressed = "2"
-	elseif love.keyboard.isDown( "3" ) then
-		keyPressed = "3"
-	elseif love.keyboard.isDown( "4" ) then
-		keyPressed = "4"
-	elseif love.keyboard.isDown( "5" ) then
-		keyPressed = "5"
-	elseif love.keyboard.isDown( "6" ) then
-		keyPressed = "6"
-	elseif love.keyboard.isDown( "7" ) then
-		keyPressed = "7"
-	elseif love.keyboard.isDown( "8" ) then
-		keyPressed = "8"
-	elseif love.keyboard.isDown( "q" ) then
-		keyPressed = "q"
-	elseif love.keyboard.isDown( "w" ) then
-		keyPressed = "w"
-	elseif love.keyboard.isDown( "e" ) then
-		keyPressed = "e"
-	elseif love.keyboard.isDown( "r" ) then
-		keyPressed = "r"
-	elseif love.keyboard.isDown( "t" ) then
-		keyPressed = "t"
-	elseif love.keyboard.isDown( "y" ) then
-		keyPressed = "y"
-	elseif love.keyboard.isDown( "u" ) then
-		keyPressed = "u"
-	elseif love.keyboard.isDown( "i" ) then
-		keyPressed = "i"
-
-	elseif (not love.keyboard.isDown( "1" )) and keyPressed == "1" then
-		playCard(1, 1, 1)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "2" )) and keyPressed == "2" then
-		playCard(1, 2, 1)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "3" )) and keyPressed == "3" then
-		playCard(1, 3, 1)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "4" )) and keyPressed == "4" then
-		playCard(1, 4, 1)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "5" )) and keyPressed == "5" then
-		playCard(1, 1, 2)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "6" )) and keyPressed == "6" then
-		playCard(1, 2, 2)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "7" )) and keyPressed == "7" then
-		playCard(1, 3, 2)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "8" )) and keyPressed == "8" then
-		playCard(1, 4, 2)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "q" )) and keyPressed == "q" then
-		playCard(2, 1, 1)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "w" )) and keyPressed == "w" then
-		playCard(2, 2, 1)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "e" )) and keyPressed == "e" then
-		playCard(2, 3, 1)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "r" )) and keyPressed == "r" then
-		playCard(2, 4, 1)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "t" )) and keyPressed == "t" then
-		playCard(2, 1, 2)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "y" )) and keyPressed == "y" then
-		playCard(2, 2, 2)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "u" )) and keyPressed == "u" then
-		playCard(2, 3, 2)
-		keyPressed = nil
-	elseif (not love.keyboard.isDown( "i" )) and keyPressed == "i" then
-		playCard(2, 4, 2)
-		keyPressed = nil
-	end
+ end
+  for k,v in pairs(keys) do
+    if love.keyboard.isDown(v[1]) then
+      if v[2] then
+        playCard(unpack(v[3]))
+        v[2] = false
+      end
+    else
+      v[2] = true
+    end
+  end
 end
 
 function love.draw()
