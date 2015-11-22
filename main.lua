@@ -6,7 +6,7 @@ function love.load()
 	nextCard = 1
 	nextX = 0
 	nextY = 0
-	UIgrid = {{}, {}} --[1] — X, [2] — Y.
+	UIgrid {x = {}, y = {}}
 	UIanchors = {{1, 1}, {6, 5}}
 	BGgrid = {}
 	recalculateBGgrid = false
@@ -70,10 +70,10 @@ end
 
 function setUIgrid()
 	for i = 1, 7 do
-		UIgrid[1][i] = windowWidth / 7 * i - 40
-		if i < 7 then
-			UIgrid[2][i] = windowHeight / 6 * i - 107
-		end
+		UIgrid.x[i] = windowWidth / 7 * i - 40
+	end
+	for i = 1, 6 do
+		UIgrid.y[i] = windowHeight / 6 * i - 107
 	end
 end
 
@@ -310,24 +310,24 @@ function UIcompose()
 			sprite = 59
 		end
 
-		cardsSpriteMetaTable[sprite][2] = UIgrid[1][UIanchors[i][1]]
-		cardsSpriteMetaTable[sprite][3] = UIgrid[2][UIanchors[i][2]]
+		cardsSpriteMetaTable[sprite][2] = UIgrid.x[UIanchors[i][1]]
+		cardsSpriteMetaTable[sprite][3] = UIgrid.y[UIanchors[i][2]]
 		cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[sprite]))
 	end
 
 	--Hands
 	for i = 1, 4 do
 		for j = 1, 2 do
-			cardsSpriteMetaTable[hands[j][i]][2] = UIgrid[1][i + 1]
-			cardsSpriteMetaTable[hands[j][i]][3] = UIgrid[2][j * 2]
+			cardsSpriteMetaTable[hands[j][i]][2] = UIgrid.x[i + 1]
+			cardsSpriteMetaTable[hands[j][i]][3] = UIgrid.y[j * 2]
 			cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[hands[j][i]]))
 		end
 	end
 	
 	--Targets
 	for i = 1, 2 do
-		cardsSpriteMetaTable[targets[i]][2] = UIgrid[1][i + 2]
-		cardsSpriteMetaTable[targets[i]][3] = UIgrid[2][3]
+		cardsSpriteMetaTable[targets[i]][2] = UIgrid.x[i + 2]
+		cardsSpriteMetaTable[targets[i]][3] = UIgrid.y[3]
 		cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[targets[i]]))
 	end
 end
