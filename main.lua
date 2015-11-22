@@ -6,8 +6,7 @@ function love.load()
 	nextCard = 1
 	nextX = 0
 	nextY = 0
-	UIgrid {x = {}, y = {}}
-	UIanchors = {{1, 1}, {6, 5}}
+	UIanchors = {decks = {}, hands = {{},{}}, targets = {}}
 	BGgrid = {}
 	recalculateBGgrid = false
 	recalculateUIgrid = false
@@ -16,10 +15,9 @@ function love.load()
 	backgroundSpriteBatch = love.graphics.newSpriteBatch(background, 50, "dynamic")
 	cardsSpriteMetaTable = newSpriteMetaTable(cardsAtlas, 59, 81, 117, 0, 0)
 	cardsSpriteBatch = love.graphics.newSpriteBatch(cardsAtlas, 12, "dynamic")
-	love.window.setMode( 1680, 1049, {borderless = true} )
-	windowWidth = love.window.getWidth()
-	windowHeight = love.window.getHeight()
-	setUIgrid()
+	love.window.setMode( 800, 480, {borderless = true} )
+	windowWidth, windowHeight = love.graphics.getDimensions()
+	setUIanchors()
 	setBGgrid()
 	BGcompose()
 	deal()
@@ -68,23 +66,41 @@ function love.draw()
 	love.graphics.draw(cardsSpriteBatch, 0, 0)
 end
 
-function setUIgrid()
-	for i = 1, 7 do
-		UIgrid.x[i] = windowWidth / 7 * i - 40
-	end
+function setUIanchors()
+	local UIgrid = {x = {}, y = {}}
+	
+	local xshift = (windowWidth / 6 - 81) / 2
+	local yshift = (windowHeight / 3 - 117) / 2
+	
 	for i = 1, 6 do
-		UIgrid.y[i] = windowHeight / 6 * i - 107
+		UIgrid.x[i] = windowWidth / 6 * (i - 1) + xshift
 	end
+	for i = 1, 3 do
+		UIgrid.y[i] = windowHeight / 3 * (i - 1) + yshift
+	end
+	
+	UIanchors.decks[1] = {x = UIgrid.x[6], y = UIgrid.y[3]}
+	UIanchors.decks[2] = {x = UIgrid.x[1], y = UIgrid.y[1]}
+	UIanchors.hands[1][1] = {x = UIgrid.x[2], y = UIgrid.y[1]}
+	UIanchors.hands[1][2] = {x = UIgrid.x[3], y = UIgrid.y[1]}
+	UIanchors.hands[1][3] = {x = UIgrid.x[4], y = UIgrid.y[1]}
+	UIanchors.hands[1][4] = {x = UIgrid.x[5], y = UIgrid.y[1]}
+	UIanchors.hands[2][1] = {x = UIgrid.x[2], y = UIgrid.y[3]}
+	UIanchors.hands[2][2] = {x = UIgrid.x[3], y = UIgrid.y[3]}
+	UIanchors.hands[2][3] = {x = UIgrid.x[4], y = UIgrid.y[3]}
+	UIanchors.hands[2][4] = {x = UIgrid.x[5], y = UIgrid.y[3]}
+	UIanchors.targets[1] = {x = UIgrid.x[3], y = UIgrid.y[2]}
+	UIanchors.targets[2] = {x = UIgrid.x[4], y = UIgrid.y[2]}
 end
 
 function setBGgrid()
 	local x = 0
 	local y = 0
-	while x < windowWidth and y < windowHeight do
+	while y < windowHeight do
 		table.insert(BGgrid, {x, y})
 		x = x + background:getWidth()
 		
-		if x > windowWidth then
+		if x >= windowWidth then
 			x = 0
 			y = y + background:getHeight()
 		end
@@ -296,8 +312,8 @@ end
 function UIcompose()
 	local sprite
 	
-	if recalculateUIgrid then
-		setUIgrid()
+	if recalculateUIanchors then
+		setUIanchors()
 	end
 
 	cardsSpriteBatch:clear()
@@ -310,24 +326,24 @@ function UIcompose()
 			sprite = 59
 		end
 
-		cardsSpriteMetaTable[sprite][2] = UIgrid.x[UIanchors[i][1]]
-		cardsSpriteMetaTable[sprite][3] = UIgrid.y[UIanchors[i][2]]
+		cardsSpriteMetaTable[sprite][2] = UIanchors.decks[i].x
+		cardsSpriteMetaTable[sprite][3] = UIanchors.decks[i].y
 		cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[sprite]))
 	end
 
 	--Hands
-	for i = 1, 4 do
-		for j = 1, 2 do
-			cardsSpriteMetaTable[hands[j][i]][2] = UIgrid.x[i + 1]
-			cardsSpriteMetaTable[hands[j][i]][3] = UIgrid.y[j * 2]
-			cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[hands[j][i]]))
+	for i = 1, 2 do
+		for j = 1, 4 do
+			cardsSpriteMetaTable[hands[i][j]][2] = UIanchors.hands[i][j].x
+			cardsSpriteMetaTable[hands[i][j]][3] = UIanchors.hands[i][j].y
+			cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[hands[i][j]]))
 		end
 	end
 	
 	--Targets
 	for i = 1, 2 do
-		cardsSpriteMetaTable[targets[i]][2] = UIgrid.x[i + 2]
-		cardsSpriteMetaTable[targets[i]][3] = UIgrid.y[3]
+		cardsSpriteMetaTable[targets[i]][2] = UIanchors.targets[i].x
+		cardsSpriteMetaTable[targets[i]][3] = UIanchors.targets[i].y
 		cardsSpriteBatch:add(unpack(cardsSpriteMetaTable[targets[i]]))
 	end
 end
