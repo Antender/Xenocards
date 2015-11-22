@@ -15,7 +15,7 @@ function love.load()
 	backgroundSpriteBatch = love.graphics.newSpriteBatch(background, 50, "dynamic")
 	cardsSpriteMetaTable = newSpriteMetaTable(cardsAtlas, 59, 81, 117, 0, 0)
 	cardsSpriteBatch = love.graphics.newSpriteBatch(cardsAtlas, 12, "dynamic")
-	love.window.setMode( 800, 480, {borderless = true} )
+	love.window.setMode( 800, 600, {borderless = true} )
 	windowWidth, windowHeight = love.graphics.getDimensions()
 	setUIanchors()
 	setBGgrid()
@@ -81,16 +81,14 @@ function setUIanchors()
 	
 	UIanchors.decks[1] = {x = UIgrid.x[6], y = UIgrid.y[3]}
 	UIanchors.decks[2] = {x = UIgrid.x[1], y = UIgrid.y[1]}
-	UIanchors.hands[1][1] = {x = UIgrid.x[2], y = UIgrid.y[1]}
-	UIanchors.hands[1][2] = {x = UIgrid.x[3], y = UIgrid.y[1]}
-	UIanchors.hands[1][3] = {x = UIgrid.x[4], y = UIgrid.y[1]}
-	UIanchors.hands[1][4] = {x = UIgrid.x[5], y = UIgrid.y[1]}
-	UIanchors.hands[2][1] = {x = UIgrid.x[2], y = UIgrid.y[3]}
-	UIanchors.hands[2][2] = {x = UIgrid.x[3], y = UIgrid.y[3]}
-	UIanchors.hands[2][3] = {x = UIgrid.x[4], y = UIgrid.y[3]}
-	UIanchors.hands[2][4] = {x = UIgrid.x[5], y = UIgrid.y[3]}
-	UIanchors.targets[1] = {x = UIgrid.x[3], y = UIgrid.y[2]}
-	UIanchors.targets[2] = {x = UIgrid.x[4], y = UIgrid.y[2]}
+	for i = 1, 2 do
+		for j = 1, 4 do
+			UIanchors.hands[i][j] = {x = UIgrid.x[j+1], y = UIgrid.y[(i-1)*2+1]}
+		end
+	end
+	for i = 1, 2 do
+		UIanchors.targets[i] = {x = UIgrid.x[i+2], y = UIgrid.y[2]}
+	end
 end
 
 function setBGgrid()
@@ -100,7 +98,7 @@ function setBGgrid()
 		table.insert(BGgrid, {x, y})
 		x = x + background:getWidth()
 		
-		if x >= windowWidth then
+		if x > windowWidth then
 			x = 0
 			y = y + background:getHeight()
 		end
