@@ -3,6 +3,5 @@
 
 ## Current agenda ##
 * Basic animations
-* Mouse input
 * AI
 * Online connectivity
