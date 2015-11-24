@@ -1,4 +1,11 @@
+local input
 function love.load()
+    input = dofile("input.lua")
+	input.load({
+		deal = deal,
+		enableTesting = enableTesting,
+		playCard = playCard,
+		isCardHovered = isCardHovered})
 	gameState = 0 
 	--States: 0 - game, 1 - draw, 2 - first player won, 3 - second player won, 4 - restart
 	winMessage = "I AM ERROR"
@@ -26,57 +33,24 @@ function love.load()
 	setBGgrid()
 	BGcompose()
 	deal()
-	keys = {
- 	{"1",true,{1,1,1}},
-	{"2",true,{1,2,1}},
-	{"3",true,{1,3,1}},
-	{"4",true,{1,4,1}},
-	{"5",true,{1,1,2}},
-	{"6",true,{1,2,2}},
-	{"7",true,{1,3,2}},
-	{"8",true,{1,4,2}},
-	{"q",true,{2,1,1}},
-	{"w",true,{2,2,1}},
-	{"e",true,{2,3,1}},
-	{"r",true,{2,4,1}},
-	{"t",true,{2,1,2}},
-	{"y",true,{2,2,2}},
-	{"u",true,{2,3,2}},
-	{"i",true,{2,4,2}}
-	}
 end
 
-
 function love.update(dt)
-	if love.keyboard.isDown("z") then
-		deal()
-	elseif love.keyboard.isDown("escape") then
-		love.event.quit()
-	elseif love.keyboard.isDown("x") then
-		testing.state = not testing.state
-		windowMode.borderless = not windowMode.borderless
-		love.window.setMode(windowMode.x, windowMode.y, {borderless = windowMode.borderless})
-	end
-	
 	if testing.state then
 		dumbAutoplay()
 	end
-
-	for k, v in pairs(keys) do
-		if love.keyboard.isDown(v[1]) then
-			if v[2] then
-				playCard(unpack(v[3]))
-				v[2] = false
-			end
-		else
-			v[2] = true
-		end
-	end
-	
 	if gameState == 4 then
-		love.window.showMessageBox("Game Over", winMessage, "info", true)
+		if not testing.state then
+			love.window.showMessageBox("Game Over", winMessage, "info", true)
+		end
 		deal()
 	end
+end
+
+function enableTesting()
+	testing.state = not testing.state
+	windowMode.borderless = not windowMode.borderless
+	love.window.setMode(windowMode.x, windowMode.y, {borderless = windowMode.borderless})
 end
 
 function love.draw()
@@ -97,22 +71,9 @@ function dumbAutoplay()
 	testing.tries = testing.tries + 1
 end
 
-function isCardHovered(x, y, cardCoordinates)
+function isCardHovered(x, y, player, position)
+	cardCoordinates = UIanchors.hands[player][position];
 	return (x >= cardCoordinates.x and y >= cardCoordinates.y and x <= (cardCoordinates.x + 80) and y <= (cardCoordinates.y + 117))
-end
-
-function love.mousepressed(x, y, button)
-	for player = 1, 2 do
-		for position = 1, 4 do
-			if isCardHovered(x, y, UIanchors.hands[player][position]) then
-				if button == "l" then
-					playCard(player, position, 1)
-				elseif button == "r" then
-					playCard(player, position, 2)
-				end
-			end
-		end
-	end
 end
 
 function setUIanchors()
