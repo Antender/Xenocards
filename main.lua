@@ -1,10 +1,12 @@
 function love.load()
-	gameOver = {state = 0, message = "I AM ERROR"}
+	gameState = 0 
+	--States: 0 - game, 1 - draw, 2 - first player won, 3 - second player won, 4 - restart
+	winMessage = "I AM ERROR"
 	testing = {state = false, tries = 0, moves = 0, matches = 0, dumbness = ""}
 	handsSizes = {0, 0}
 	decksSizes = {0, 0}
-	hands = {{}, {}}
-	targets = {}
+	hands = {{59, 59, 59, 59}, {59, 59, 59 ,59}}
+	targets = {59, 59}
 	nextCard = 1
 	nextX = 0
 	nextY = 0
@@ -47,7 +49,7 @@ end
 
 function love.update(dt)
 	if love.keyboard.isDown("z") then
-		restart()
+		deal()
 	elseif love.keyboard.isDown("escape") then
 		love.event.quit()
 	elseif love.keyboard.isDown("x") then
@@ -70,12 +72,20 @@ function love.update(dt)
 			v[2] = true
 		end
 	end
+	
+	if gameState == 4 then
+		love.window.showMessageBox("Game Over", winMessage, "info", true)
+		deal()
+	end
 end
 
 function love.draw()
 	UIcompose()
 	love.graphics.draw(backgroundSpriteBatch, 0, 0)
 	love.graphics.draw(cardsSpriteBatch, 0, 0)
+	if gameState == 1 or gameState == 2 or gameState == 3 then
+		gameState = 4
+	end
 	if testing.state then
 		testing.dumbness = string.format("%.f", ((testing.tries - testing.moves) / testing.tries * 100))
 		love.window.setTitle("Tries:" .. testing.tries .. " Moves:" .. testing.moves .. " Matches:" .. testing.matches .. " Dumbness:" .. testing.dumbness .. "%") --Possibly instable.
@@ -173,6 +183,7 @@ function newSpriteMetaTable(atlas, spriteCount, spriteWidth, spriteHeight, paddi
 end
 
 function deal()
+	gameState = 0
 	local deck1 = {}
 	local deck2 = {}
 	local randomIndex = nil
@@ -206,9 +217,12 @@ function deal()
 		end
 	end
 	
+	targets = {popDeck(1), popDeck(2)}
 	handsSizes = {4, 4}
 	
-	resolve()
+	if isStalemate() then
+		resolve()
+	end
 end
 
 function popDeck(player)
@@ -241,31 +255,23 @@ function playCard(player, position, target)
 	end
 end
 
-function checkGameOver() --0 — none, 1 — first, 2 — second, 3 — both players win(draw).
-	if handsSizes[1] == 0 and handsSizes[2] == 0 then
-		gameOver.state = 3
-		gameOver.message = "It's a draw!"
-	elseif handsSizes[1] == 0 then
-		gameOver.state = 1
-		gameOver.message = "First player won!"
+function checkGameOver()
+	if handsSizes[1] == 0 then
+		if handsSizes[2] == 0 then
+			gameState = 1
+			winMessage = "It's a draw!"
+		else
+			gameState = 2
+			winMessage = "First player won!"
+		end
 	elseif handsSizes[2] == 0 then
-		gameOver.state = 2
-		gameOver.message = "Second player won!"
+		gameState = 3
+		winMessage = "Second player won!"
 	end
-
-	if gameOver.state ~= 0 then --This need to be elsewhere but major issues were encountered.
-		endGame()
-	end
-end
-
-function endGame()
-	if testing.state then
+	
+	if testing.state and (gameState == 1 or gameState == 2 or gameState == 3) then
 		testing.matches = testing.matches + 1
-	else
-		love.window.showMessageBox("Game Over", gameOver.message, "info", true) --Needs to visually resolve first.
 	end
-
-	restart()
 end
 
 function isStalemate()
@@ -294,6 +300,7 @@ function drawCard(player, position)
 end
 
 function resolve()
+	if handsSizes[1] ~= 0 and handsSizes[2] then 
 	local candidates = {}
 
 	for player = 1, 2 do
@@ -312,11 +319,16 @@ function resolve()
 		end
 	end
 
-	targets[1] = candidates[2]
-	targets[2] = candidates[1]
+	if candidates[2] ~= nil then
+		targets[1] = candidates[2]
+	end
+	if candidates[1] ~= nil then
+		targets[2] = candidates[1]
+	end
 
 	if isStalemate() then
 		resolve()
+	end
 	end
 end
 
@@ -332,11 +344,6 @@ function isValid(player, position, target)
 	end
 	
 	return validity
-end
-
-function restart()
-	gameOver = {state = 0, message = "I AM ERROR"}
-	deal()
 end
 
 function BGcompose()
