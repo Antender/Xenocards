@@ -6,7 +6,7 @@ local background
 local cards
 local logic
 local state = 0 
-	--States: 0 - game, 1 - draw, 2 - first player won, 3 - second player won, 4 - restart
+	--States: 0 - in progress, 1 - first player won, 2 - second player won, 3 - draw, 4 - restart
 local winMessage = "I AM ERROR"
 local testing = {state = false, tries = 0, moves = 0, matches = 0, dumbness = ""}
 local windowMode
@@ -29,12 +29,6 @@ local function increaseMoves()
 	end
 end
 
-local function increaseMatches()
-	if testing.state and (gameState == 1 or gameState == 2 or gameState == 3) then
-		testing.matches = testing.matches + 1
-	end
-end
-
 local function setState(newstate)
 	state = newstate
 end
@@ -47,10 +41,14 @@ local function update(dt)
 	if testing.state then
 		dumbAutoplay()
 	end
+	
 	if state == 4 then
-		if not testing.state then
+		if testing.state then
+			testing.matches = testing.matches + 1
+		else
 			love.window.showMessageBox("Game Over", winMessage, "info", true)
 		end
+
 		logic.deal()
 	end
 end
@@ -89,7 +87,6 @@ function gamescreen.load(_imports)
 		setGamescreenState = setState,
 		setWinMessage = setWinMessage,
 		increaseMoves = increaseMoves,
-		increaseMatches = increaseMatches
 	})	
 	love.update = update
 	love.draw = draw

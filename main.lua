@@ -11,6 +11,3 @@ function love.load()
 	gamescreen = dofile("gamescreen.lua")
 	gamescreen.load({getWindowMode = getWindowMode})
 end
-
-
-

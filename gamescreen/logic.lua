@@ -23,18 +23,16 @@ end
 local function checkGameOver()
 	if handsSizes[1] == 0 then
 		if handsSizes[2] == 0 then
-			imports.setGamescreenState(1)
+			imports.setGamescreenState(3)
 			imports.setWinMessage("It's a draw!")
 		else
-			imports.setGamescreenState(2)
+			imports.setGamescreenState(1)
 			imports.setWinMessage("First player won!")
 		end
 	elseif handsSizes[2] == 0 then
-		imports.setGamescreenState(3)
+		imports.setGamescreenState(2)
 		imports.setWinMessage("Second player won!")
 	end
-	
-	imports.increaseMatches()
 end
 
 local function isValid(player, position, target)
@@ -77,9 +75,9 @@ local function drawCard(player, position)
 end
 
 local function resolve()
-	if handsSizes[1] ~= 0 and handsSizes[2] then 
+	if handsSizes[1] ~= 0 and handsSizes[2] ~= 0 then 
 		local candidates = {}
-	
+
 		for player = 1, 2 do
 			if decksSizes[player] == 0 then
 				for position = 1, 4 do
@@ -95,14 +93,14 @@ local function resolve()
 			candidates[player] = popDeck(player)
 			end
 		end
-	
+
 		if candidates[2] ~= nil then
 			targets[1] = candidates[2]
 		end
 		if candidates[1] ~= nil then
 			targets[2] = candidates[1]
 		end
-	
+
 		if isStalemate() then
 			resolve()
 		end

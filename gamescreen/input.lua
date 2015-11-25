@@ -5,7 +5,7 @@ local imports
 local keys
 
 --functions
-local function keyboardpressed(button, dorepeat)
+local function keyreleased(button)
 	if button == "z" then
 		imports.deal()
 	elseif button == "escape" then
@@ -57,7 +57,7 @@ function input.load(_imports)
 		{"y",{2,2,2}},
 		{"u",{2,3,2}},
 		{"i",{2,4,2}}}
-	love.keypressed = keyboardpressed
+	love.keyreleased = keyreleased
 	love.mousepressed = mousepressed
 end
 
