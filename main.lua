@@ -1,4 +1,4 @@
-local gamescreen
+local screen
 local windowMode
 
 local function getWindowMode()
@@ -8,6 +8,19 @@ end
 function love.load()
 	windowMode = {x = 800, y = 480, borderless = true}
 	love.window.setMode(windowMode.x, windowMode.y, {borderless = windowMode.borderless})
-	gamescreen = dofile("gamescreen.lua")
-	gamescreen.load({getWindowMode = getWindowMode})
+	switchMainscreen()
+end
+
+function switchMainscreen()
+	screen = dofile("mainscreen.lua")
+	screen.load({
+		getWindowMode = getWindowMode,
+		switchGamescreen = switchGamescreen})
+end
+
+function switchGamescreen()
+	screen = dofile("gamescreen.lua")
+	screen.load({
+		getWindowMode = getWindowMode,
+		switchMainscreen = switchMainscreen})
 end

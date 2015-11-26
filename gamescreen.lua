@@ -77,7 +77,8 @@ function gamescreen.load(_imports)
 		deal = logic.deal,
 		enableTesting = enableTesting,
 		playCard = logic.playCard,
-		isCardHovered = cards.isCardHovered})
+		isCardHovered = cards.isCardHovered,
+		switchMainscreen = imports.switchMainscreen})
 	background.load(nil)
 	cards.load({
 		getDecksSizes = logic.getDecksSizes,

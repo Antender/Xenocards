@@ -9,7 +9,7 @@ local function keyreleased(button)
 	if button == "z" then
 		imports.deal()
 	elseif button == "escape" then
-		love.event.quit()
+		imports.switchMainscreen()
 	elseif button == "x" then
 		imports.enableTesting()
 	else
