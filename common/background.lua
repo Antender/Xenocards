@@ -2,7 +2,7 @@
 local imports
 
 --locals
-local backgroundImage = love.graphics.newImage("gamescreen/background.png")
+local backgroundImage = love.graphics.newImage("common/background.png")
 local grid = {}
 local spriteBatch = love.graphics.newSpriteBatch(backgroundImage, 50, "dynamic")
 local windowHeight, windowWidth
@@ -23,10 +23,10 @@ local function calculateGrid()
 	end
 end
 
---export
-local background = {}
+--exports
+local exports = {}
 
-function background.load(_imports)
+function exports.load(_imports)
 	imports = _imports
 	windowHeight, windowWidth = love.graphics.getDimensions()
 	calculateGrid()
@@ -42,9 +42,9 @@ local function compose()
 	end
 end
 
-function background.draw()
+function exports.draw()
 	compose()
 	love.graphics.draw(spriteBatch, 0, 0)
 end
 
-return background
+return exports

@@ -1,6 +1,5 @@
 --imports
 local imports
-
 --locals
 local atlas = love.graphics.newImage("gamescreen/atlas.png")
 local anchors = {
@@ -40,30 +39,23 @@ local function newSpriteMetaTable(atlas, spriteCount, spriteWidth, spriteHeight,
 end
 
 local function setupAnchors()
-	local grid = {x = {}, y = {}}
+	local grid = dofile("common/grid.lua").new(windowWidth, windowHeight,6,3,0,0)
 	
 	local xshift = (windowWidth / 6 - 81) / 2
 	local yshift = (windowHeight / 3 - 117) / 2
 	
-	for column = 1, 6 do
-		grid.x[column] = windowWidth / 6 * (column - 1) + xshift
-	end
-	for column = 1, 3 do
-		grid.y[column] = windowHeight / 3 * (column - 1) + yshift
-	end
-	
-	anchors.decks[1] = {x = grid.x[6], y = grid.y[3]}
-	anchors.decks[2] = {x = grid.x[1], y = grid.y[1]}
-	anchors.hands[2][1] = {x = grid.x[2], y = grid.y[1]}
-	anchors.hands[2][2] = {x = grid.x[3], y = grid.y[1]}
-	anchors.hands[2][3] = {x = grid.x[4], y = grid.y[1]}
-	anchors.hands[2][4] = {x = grid.x[5], y = grid.y[1]}
-	anchors.hands[1][1] = {x = grid.x[2], y = grid.y[3]}
-	anchors.hands[1][2] = {x = grid.x[3], y = grid.y[3]}
-	anchors.hands[1][3] = {x = grid.x[4], y = grid.y[3]}
-	anchors.hands[1][4] = {x = grid.x[5], y = grid.y[3]}
-	anchors.targets[1] = {x = grid.x[3], y = grid.y[2]}
-	anchors.targets[2] = {x = grid.x[4], y = grid.y[2]}
+	anchors.decks[1] = {x = grid.x[6] + xshift, y = grid.y[3] + yshift}
+	anchors.decks[2] = {x = grid.x[1] + xshift, y = grid.y[1] + yshift}
+	anchors.hands[2][1] = {x = grid.x[2] + xshift, y = grid.y[1] + yshift}
+	anchors.hands[2][2] = {x = grid.x[3] + xshift, y = grid.y[1] + yshift}
+	anchors.hands[2][3] = {x = grid.x[4] + xshift, y = grid.y[1] + yshift}
+	anchors.hands[2][4] = {x = grid.x[5] + xshift, y = grid.y[1] + yshift}
+	anchors.hands[1][1] = {x = grid.x[2] + xshift, y = grid.y[3] + yshift}
+	anchors.hands[1][2] = {x = grid.x[3] + xshift, y = grid.y[3] + yshift}
+	anchors.hands[1][3] = {x = grid.x[4] + xshift, y = grid.y[3] + yshift}
+	anchors.hands[1][4] = {x = grid.x[5] + xshift, y = grid.y[3] + yshift}
+	anchors.targets[1] = {x = grid.x[3] + xshift, y = grid.y[2] + yshift}
+	anchors.targets[2] = {x = grid.x[4] + xshift, y = grid.y[2] + yshift}
 end
 
 local function drawCard(sprite,pos)
@@ -99,24 +91,24 @@ local function compose()
 	end
 end
 
---export
-local cards = {}
+--exports
+local exports = {}
 
-function cards.load(_imports)
+function exports.load(_imports)
 	imports = _imports
 	spriteMetaTable = newSpriteMetaTable(atlas, 59, 81, 117, 0, 0)
 	windowWidth, windowHeight = love.window.getDimensions()
 	setupAnchors()
 end
 
-function cards.draw()
+function exports.draw()
 	compose()
 	love.graphics.draw(spriteBatch, 0, 0)
 end
 
-function cards.isCardHovered(x, y, player, position)
+function exports.isCardHovered(x, y, player, position)
 	cardCoordinates = anchors.hands[player][position];
 	return (x >= cardCoordinates.x and y >= cardCoordinates.y and x <= (cardCoordinates.x + 80) and y <= (cardCoordinates.y + 117))
 end
 
-return cards
+return exports

@@ -1,10 +1,9 @@
 --imports
 local imports
-
---locals
 local background
 local cards
 local logic
+--locals
 local state = 0 
 	--States: 0 - in progress, 1 - first player won, 2 - second player won, 3 - draw, 4 - restart
 local winMessage = "I AM ERROR"
@@ -64,13 +63,13 @@ local function draw()
 		love.window.setTitle("Tries:" .. testing.tries .. " Moves:" .. testing.moves .. " Matches:" .. testing.matches .. " Dumbness:" .. testing.dumbness .. "%") --Possibly instable.
 	end
 end
---export
-local gamescreen = {}
+--exports
+local exports = {}
 
-function gamescreen.load(_imports)
+function exports.load(_imports)
 	imports = _imports
 	input = dofile("gamescreen/input.lua")
-	background = dofile("gamescreen/background.lua")
+	background = dofile("common/background.lua")
 	cards = dofile("gamescreen/cards.lua")
 	logic = dofile("gamescreen/logic.lua")
 	input.load({
@@ -94,4 +93,4 @@ function gamescreen.load(_imports)
 	windowMode = imports.getWindowMode()
 end
 
-return gamescreen
+return exports

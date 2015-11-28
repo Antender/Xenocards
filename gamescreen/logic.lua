@@ -107,10 +107,10 @@ local function resolve()
 	end
 end
 
---export
-local logic = {}
+--exports
+local exports = {}
 
-function logic.playCard(player, position, target)
+function exports.playCard(player, position, target)
 	if isValid(player, position, target) then
 	
 		imports.increaseMoves()
@@ -126,24 +126,24 @@ function logic.playCard(player, position, target)
 	end
 end
 
-function logic.load(_imports)
+function exports.load(_imports)
 	imports = _imports
-	logic.deal()
+	exports.deal()
 end
 
-function logic.getDecksSizes()
+function exports.getDecksSizes()
 	return decksSizes
 end
 
-function logic.getHands()
+function exports.getHands()
 	return hands
 end
 
-function logic.getTargets()
+function exports.getTargets()
 	return targets
 end
 
-function logic.deal()
+function exports.deal()
 	imports.setGamescreenState(0)
 	local deck1 = {}
 	local deck2 = {}
@@ -186,4 +186,4 @@ function logic.deal()
 	end
 end
 
-return logic
+return exports

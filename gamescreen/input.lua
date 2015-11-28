@@ -35,10 +35,10 @@ local function mousepressed(x, y, button)
 	end
 end
 
---export
-local input = {}
+--exports
+local exports = {}
 
-function input.load(_imports)
+function exports.load(_imports)
 	imports = _imports
 	keys = {
  		{"1",{1,1,1}},
@@ -61,4 +61,4 @@ function input.load(_imports)
 	love.mousepressed = mousepressed
 end
 
-return input
+return exports

@@ -1,7 +1,7 @@
 --imports
 local imports
 local background
-
+local input
 --locals
 local pos = {}
 --functions
@@ -17,32 +17,23 @@ local function containsButton(x,y)
 	return x >= pos.x and x <= (pos.x + 324) and y >= pos.y and y <= (pos.y + 117)
 end
 
-local function mousepressed(x,y,button)
-	if containsButton(x,y) then
-		imports.switchGamescreen()
-	end
-end
+--exports
+local exports = {}
 
-local function keyreleased(button)
-	if button == "escape" then
-		love.event.quit()
-	end
-end
-
---export
-local mainscreen = {}
-function mainscreen.load(_imports)
+function exports.load(_imports)
 	imports = _imports
-	background = dofile("gamescreen/background.lua")
+	background = dofile("common/background.lua")
 	background.load(nil)
+	input = dofile("mainscreen/input.lua")
+	input.load({
+		switchGamescreen = imports.switchGamescreen,
+		containsButton = containsButton})
 	startButton = love.graphics.newImage("mainscreen/start.png")
 	local windowMode = imports.getWindowMode()
 	pos.x = windowMode.x / 2 - 324 / 2
 	pos.y = windowMode.y / 2 - 117 / 2
 	love.update = update
 	love.draw = draw
-	love.mousepressed = mousepressed
-	love.keyreleased = keyreleased
 end
 
-return mainscreen
+return exports
