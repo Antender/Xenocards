@@ -7,14 +7,11 @@ local pos = {}
 --functions
 local function draw()
 	background.draw()
-	love.graphics.draw(startButton,pos.x,pos.y)
+	love.graphics.draw(startButton, pos.x, pos.y)
+	love.graphics.draw(multiplayerButton, pos.x, pos.y + 70)
 end
 
 local function update(dt)
-end
-
-local function containsButton(x,y)
-	return x >= pos.x and x <= (pos.x + 324) and y >= pos.y and y <= (pos.y + 117)
 end
 
 --exports
@@ -29,6 +26,7 @@ function exports.load(_imports)
 		switchGamescreen = imports.switchGamescreen,
 		containsButton = containsButton})
 	startButton = love.graphics.newImage("mainscreen/start.png")
+    multiplayerButton = love.graphics.newImage("mainscreen/start.png")
 	local windowMode = imports.getWindowMode()
 	pos.x = windowMode.x / 2 - 324 / 2
 	pos.y = windowMode.y / 2 - 117 / 2

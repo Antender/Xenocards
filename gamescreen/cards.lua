@@ -97,7 +97,7 @@ local exports = {}
 function exports.load(_imports)
 	imports = _imports
 	spriteMetaTable = newSpriteMetaTable(atlas, 59, 81, 117, 0, 0)
-	windowWidth, windowHeight = love.window.getDimensions()
+	windowWidth, windowHeight = love.graphics.getDimensions()
 	setupAnchors()
 end
 
